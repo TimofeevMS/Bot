@@ -1,0 +1,6 @@
+@app_example_net_core_HostAddress = http://0.0.0.0:5083
+
+GET {{app_example_net_core_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
