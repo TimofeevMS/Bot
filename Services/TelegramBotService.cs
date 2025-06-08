@@ -55,7 +55,7 @@ public class TelegramBotService
                                                    cancellationToken: cancellationToken);
                     }
                     
-                    _logger.LogInformation($"User ({user?.Id}) {user?.FirstName} sent /start");
+                    _logger.LogInformation($"User Id: {user?.Id} FirstName: {user?.FirstName} LastName: {user?.LastName} UserName: {user?.Username} sent /start");
                 }
             }
             else if (update.Type == UpdateType.CallbackQuery)
@@ -83,7 +83,7 @@ public class TelegramBotService
                                                           cancellationToken: cancellationToken);
                         }
 
-                        _logger.LogInformation($"User ({user?.Id}) {user?.FirstName} sent /download_pdf");
+                        _logger.LogInformation($"User Id: {user?.Id} FirstName: {user?.FirstName} LastName: {user?.LastName} UserName: {user?.Username} sent /download_pdf");
                         
                         await _botClient.AnswerCallbackQuery(update.CallbackQuery.Id, cancellationToken: cancellationToken);
 
@@ -107,7 +107,7 @@ public class TelegramBotService
                                                        cancellationToken: cancellationToken);
                         }
                         
-                        _logger.LogInformation($"User ({user?.Id}) {user?.FirstName} sent /yes");
+                        _logger.LogInformation($"User Id: {user?.Id} FirstName: {user?.FirstName} LastName: {user?.LastName} UserName: {user?.Username} sent /yes");
 
                         await _botClient.AnswerCallbackQuery(update.CallbackQuery.Id, cancellationToken: cancellationToken);
                         
@@ -130,7 +130,7 @@ public class TelegramBotService
                                                        cancellationToken: cancellationToken);
                         }
                         
-                        _logger.LogInformation($"User ({user?.Id}) {user?.FirstName} sent /no");
+                        _logger.LogInformation($"User Id: {user?.Id} FirstName: {user?.FirstName} LastName: {user?.LastName} UserName: {user?.Username} sent /no");
 
                         await _botClient.AnswerCallbackQuery(update.CallbackQuery.Id, cancellationToken: cancellationToken);
                         
@@ -168,10 +168,10 @@ public class TelegramBotService
                                                          "Ошибка при проверке подписки. Убедитесь, что вы подписаны на канал!",
                                                          cancellationToken: cancellationToken);
 
-                            Console.WriteLine($"Ошибка проверки подписки: {ex.Message}");
+                            _logger.LogWarning($"Ошибка проверки подписки на канал: {ex.Message}");
                         }
                         
-                        _logger.LogInformation($"User ({user?.Id}) {user?.FirstName} sent /check_subscription");
+                        _logger.LogInformation($"User Id: {user?.Id} FirstName: {user?.FirstName} LastName: {user?.LastName} UserName: {user?.Username} sent /check_subscription");
 
                         await _botClient.AnswerCallbackQuery(callbackQuery.Id, cancellationToken: cancellationToken);
 
