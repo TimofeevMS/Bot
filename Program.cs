@@ -2,6 +2,7 @@ using app_example_net_core.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Logging.AddConsole();
 builder.Services.AddControllers();
 builder.Services.AddSingleton<TelegramBotService>();
 

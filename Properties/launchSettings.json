@@ -16,7 +16,9 @@
       "launchUrl": "swagger",
       "applicationUrl": "http://0.0.0.0:5083",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "BOT_TOKEN": "8184672366:AAEPyqbdARHlgnqS6wkLe-4i5eohblVQdGo",
+        "WEBHOOK_URL": "https://timofeevms-bot-3ad2.twc1.net/api/TelegramBot"
       }
     },
     "https": {

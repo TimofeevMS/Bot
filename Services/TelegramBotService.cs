@@ -15,9 +15,11 @@ public class TelegramBotService
     private const string QuestImageFilePath = "questimage.jpg";
     private const string ImageFilePath = "image.jpg";
     private const string VoiceFilePath = "voice.ogg";
+    private readonly ILogger<TelegramBotService> _logger;
 
-    public TelegramBotService()
+    public TelegramBotService(ILogger<TelegramBotService> logger)
     {
+        _logger = logger;
         var botToken = Environment.GetEnvironmentVariable("BOT_TOKEN");
         var webhookUrl = Environment.GetEnvironmentVariable("WEBHOOK_URL");
         _botClient = new TelegramBotClient(botToken);
@@ -27,7 +29,7 @@ public class TelegramBotService
     public async Task SetWebhookAsync()
     {
         await _botClient.SetWebhook(_webhookUrl);
-        Console.WriteLine($"Webhook установлен: {_webhookUrl}");
+        _logger.LogInformation($"Webhook установлен: {_webhookUrl}");
     }
 
     public async Task HandleUpdateAsync(Update update, CancellationToken cancellationToken)
@@ -38,6 +40,7 @@ public class TelegramBotService
             {
                 var chatId = update.Message.Chat.Id;
                 var messageText = update.Message.Text;
+                var user = update.Message.From;
                 
                 if (messageText == "/start")
                 {
@@ -51,12 +54,14 @@ public class TelegramBotService
                                                    replyMarkup: keyboard,
                                                    cancellationToken: cancellationToken);
                     }
+                    
+                    _logger.LogInformation("User ({UserId}) {user.FirstName} sent /start", user.Id);
                 }
             }
             else if (update.Type == UpdateType.CallbackQuery)
             {
                 var callbackQuery = update.CallbackQuery;
-                var userId = callbackQuery.From.Id;
+                var user = callbackQuery.From;
                 var chatId = callbackQuery?.Message?.Chat.Id;
                 
                 switch (callbackQuery?.Data)
@@ -78,6 +83,8 @@ public class TelegramBotService
                                                           cancellationToken: cancellationToken);
                         }
 
+                        _logger.LogInformation("User ({UserId}) {user.FirstName} sent /download_pdf", user.Id);
+                        
                         await _botClient.AnswerCallbackQuery(update.CallbackQuery.Id, cancellationToken: cancellationToken);
 
                         break;
@@ -99,6 +106,8 @@ public class TelegramBotService
                                                        replyMarkup: keyboard,
                                                        cancellationToken: cancellationToken);
                         }
+                        
+                        _logger.LogInformation("User ({UserId}) {user.FirstName} sent /yes", user.Id);
 
                         await _botClient.AnswerCallbackQuery(update.CallbackQuery.Id, cancellationToken: cancellationToken);
                         
@@ -121,17 +130,20 @@ public class TelegramBotService
                                                        cancellationToken: cancellationToken);
                         }
                         
+                        _logger.LogInformation("User ({UserId}) {user.FirstName} sent /no", user.Id);
+
+                        await _botClient.AnswerCallbackQuery(update.CallbackQuery.Id, cancellationToken: cancellationToken);
+                        
                         break;
                     }
                         
                     case "check_subscription":
                         try
                         {
-                            var chatMember = await _botClient.GetChatMember(ChannelId, userId, cancellationToken: cancellationToken);
+                            var chatMember = await _botClient.GetChatMember(ChannelId, user.Id, cancellationToken: cancellationToken);
 
                             if (chatMember.Status is ChatMemberStatus.Member or ChatMemberStatus.Administrator or ChatMemberStatus.Creator)
                             {
-                                // Пользователь подписан, отправляем голосовое сообщение
                                 await using var voiceStream = new FileStream(VoiceFilePath, FileMode.Open, FileAccess.Read);
 
                                 await _botClient.SendVoice(chatId: chatId,
@@ -158,6 +170,8 @@ public class TelegramBotService
 
                             Console.WriteLine($"Ошибка проверки подписки: {ex.Message}");
                         }
+                        
+                        _logger.LogInformation("User ({UserId}) {user.FirstName} sent /check_subscription", user.Id);
 
                         await _botClient.AnswerCallbackQuery(callbackQuery.Id, cancellationToken: cancellationToken);
 
@@ -167,15 +181,7 @@ public class TelegramBotService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Ошибка: {ex.Message}");
+            _logger.LogError(ex, $"Ошибка: {ex.Message}");
         }
-    }
-    
-    private static Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception,
-                                         CancellationToken cancellationToken)
-    {
-        Console.WriteLine($"Ошибка: {exception.Message}");
-
-        return Task.CompletedTask;
     }
 }
