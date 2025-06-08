@@ -16,8 +16,10 @@ public class TelegramBotService
     private const string ImageFilePath = "image.jpg";
     private const string VoiceFilePath = "voice.ogg";
 
-    public TelegramBotService(string botToken, string webhookUrl)
+    public TelegramBotService()
     {
+        var botToken = Environment.GetEnvironmentVariable("BOT_TOKEN");
+        var webhookUrl = Environment.GetEnvironmentVariable("WEBHOOK_URL");
         _botClient = new TelegramBotClient(botToken);
         _webhookUrl = webhookUrl;
     }
